@@ -61,3 +61,58 @@ def athlete_success(df,sport):
     x = temp_df['Name'].value_counts().reset_index().head(10).merge(df,left_on='index',right_on='Name',how='left')[['index','Name_x','Sport','region']].drop_duplicates()
     x.rename(columns={'index':'Name','Name_x':'Medals'},inplace=True)
     return x
+
+
+def countrywise_medal_tally(df,country):
+    
+    # Country-wise medal tally per year
+    
+    temp_df = df.dropna(subset=['Medal'])
+    temp_df = temp_df.drop_duplicates(subset=['Team','NOC','Games','Year','City','Sport','Event','Medal'])
+
+    new_df = temp_df[temp_df['region']==country]
+    final_df = new_df.groupby(['Year']).count()['Medal'].reset_index()
+    return final_df
+
+def countrywise_medals_heatmap(df,country):
+    
+    # Country-wise medal tally per year HEATMAP
+    
+    temp_df = df.dropna(subset=['Medal'])
+    temp_df = temp_df.drop_duplicates(subset=['Team','NOC','Games','Year','City','Sport','Event','Medal'])
+
+    new_df = temp_df[temp_df['region']==country]
+    return new_df
+
+def countrywise_athletes_success(df,country):
+    
+    # Country-wise medal tally per year
+
+    temp_df = df.dropna(subset=['Medal'])
+    temp_df = temp_df[temp_df['region']==country]
+    x = temp_df['Name'].value_counts().reset_index().head(10).merge(df,left_on='index',right_on='Name',how='left')[['index','Name_x','Sport']].drop_duplicates()
+    x.rename(columns={'index':'Name','Name_x':'Medals'},inplace=True)
+    return x
+
+
+def weight_height(df,sport):
+    athlete_df = df.drop_duplicates(subset=['Name','region'])
+    athlete_df['Medal'].fillna('No Medal', inplace=True)
+    if sport != 'OverAll':
+        temp_df = athlete_df[athlete_df['Sport']==sport]
+        return temp_df
+    else:
+        return athlete_df
+    
+    
+def men_v_women(df):
+    athlete_df = df.drop_duplicates(['Name','region'])
+    
+    men = athlete_df[athlete_df['Sex']=='M'].groupby('Year').count()['Name'].reset_index()
+    
+    women = athlete_df[athlete_df['Sex']=='F'].groupby('Year').count()['Name'].reset_index()
+    
+    final = men.merge(women,on='Year',how='left')
+    final.rename(columns={'Name_x':'Male','Name_y':'Female'},inplace=True)
+    
+    return final
